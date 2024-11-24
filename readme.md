@@ -56,7 +56,7 @@ This project is a full-stack web application consisting of a **Vue.js frontend**
    ```
 3. Start the development server:
    ```bash
-   npm run dev
+   npm start
    ```
 
 ---
