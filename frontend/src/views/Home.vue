@@ -3,6 +3,7 @@ import axios from 'axios';
 import { onMounted, ref, computed } from 'vue';
 import { authState, userStore } from '../../store/store';
 import { useToastNotification } from '../helper/useToastNotification';
+import EditUserModal from '../components/EditUserModal.vue';
 
 const useData = ref([]);
 const searchQuery = ref('');
@@ -10,15 +11,17 @@ const selectedFilter = ref('All');
 const currentPage = ref(1);
 const itemsPerPage = ref(5);
 const token = localStorage.getItem('auth-token');
+const showEditModal = ref(false);
+const selectedUserId = ref(null);
 
-const { showSuccessToast,showErrorToast } = useToastNotification();
+const { showSuccessToast, showErrorToast } = useToastNotification();
 
 // Fetch user data from the API
 const getData = async () => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URI}/api/user/users`);
+        // const user = response.data.filter((user) => user.id !== userStore.user.id);
         useData.value = response.data;
-        console.log(response);
     } catch (error) {
         console.error(error);
     }
@@ -74,13 +77,22 @@ const deleteUser = async (id) => {
         console.log(response);
 
     } catch (error) {
-        if(error.response.status === 404){
+        if (error.response.status === 404) {
             showErrorToast(error.response.data.message);
             return
         }
         showErrorToast('Internal Server Error');
         console.error(error);
     }
+}
+
+const editUser = (userId) => {
+  selectedUserId.value = userId;
+  showEditModal.value = true;
+};
+
+const inviteUser = async (id) => {
+
 }
 
 onMounted(() => {
@@ -111,7 +123,7 @@ onMounted(() => {
                     <th class="border-b px-4 py-2 text-left">ID</th>
                     <th class="border-b px-4 py-2 text-left">Username</th>
                     <th class="border-b px-4 py-2 text-left">Email</th>
-                    <th class="border-b px-4 py-2 text-left">Actions</th>
+                    <th class="border-b px-4 py-2 text-left" v-if="authState.isLoggedIn">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,13 +133,19 @@ onMounted(() => {
                     <td class="border-b px-4 py-2">{{ user.email }}</td>
                     <td class="border-b px-4 py-2 flex gap-2">
 
-                        <button v-if="authState.isLoggedIn" @click="editUser(user.id)"
+                        <button @click="editUser(user.id)"
+                            v-if="authState.isLoggedIn && (userStore.user?.role === 'admin' || userStore.user?.id === user.id)"
                             class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400">
                             Edit
                         </button>
-                        <button v-if="authState.isLoggedIn" @click="deleteUser(user.id)"
+                        <button @click="deleteUser(user.id)"
+                            v-if="authState.isLoggedIn && userStore.user?.role === 'admin' && user.id !== userStore.user.id"
                             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
                             Delete
+                        </button>
+                        <button @click="inviteUser(user.id)"
+                            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400">
+                            Invite
                         </button>
                     </td>
                 </tr>
@@ -144,5 +162,9 @@ onMounted(() => {
             <button @click="nextPage" :disabled="currentPage === totalPages"
                 class="px-4 py-2 bg-gray-300 rounded disabled:bg-gray-200">Next</button>
         </div>
+
+        <!-- Edit User Modal -->
+        <EditUserModal :showModal="showEditModal" :userId="selectedUserId || null" @close="showEditModal = false" 
+            @userUpdated="getData" />
     </div>
 </template>
