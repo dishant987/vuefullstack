@@ -16,10 +16,12 @@ const profileSchema = Yup.object({
     email: Yup.string()
         .email('Please enter a valid email')
         .required('Email is required'),
-    role: Yup.string()
-        .oneOf(['user', 'admin'], 'Role must be user or admin')
-        .required('Role is required'), // Add role validation
+    password: Yup.string().optional()
+        .min(6, 'Password must be at least 6 characters long'),
+    confirmPassword: Yup.string().optional()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
+
 
 // Setup the form validation
 const { handleSubmit, resetForm } = useForm({
@@ -30,15 +32,8 @@ const { showSuccessToast, showErrorToast } = useToastNotification();
 // Define the fields
 const { value: username, errorMessage: usernameError } = useField('username', userStore.user?.username || '');
 const { value: email, errorMessage: emailError } = useField('email', userStore.user?.email || '');
-const { value: role, errorMessage: roleError } = useField('role', userStore.user?.role || 'user'); // Bind role
-
-// Store the fetched user data
-const user = ref({
-    username: userStore.user?.username || '',
-    email: userStore.user?.email || '',
-    role: userStore.user?.role || 'user',
-});
-
+const { value: password, errorMessage: passwordError } = useField('password');
+const { value: confirmPassword, errorMessage: confirmPasswordError } = useField('confirmPassword');
 
 
 // Update user data after form submission
@@ -57,7 +52,7 @@ const updateUserProfile = async (values) => {
             userStore.setUser(res.data.user);
 
         }
-        console.log(res);
+
     } catch (error) {
         if (error.response.status === 404) {
             showErrorToast(error.response.data.message);
@@ -112,15 +107,22 @@ const onSubmit = handleSubmit(updateUserProfile);
                     <p v-if="emailError" class="text-red-500 text-sm mt-1">{{ emailError }}</p>
                 </div>
 
-                <!-- Role -->
+                <!-- Password -->
                 <div class="mb-4">
-                    <select v-model="role" id="role"
-                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                    <p v-if="roleError" class="text-red-500 text-sm mt-1">{{ roleError }}</p>
+                    <input v-model="password" type="password" id="password" placeholder="New Password (optional)"
+                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
+                    <p v-if="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</p>
                 </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-4">
+                    <input v-model="confirmPassword" type="password" id="confirmPassword"
+                        placeholder="Confirm New Password (if entered)"
+                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
+                    <p v-if="confirmPasswordError" class="text-red-500 text-sm mt-1">{{ confirmPasswordError }}</p>
+                </div>
+
+
 
                 <!-- Submit Button -->
                 <button :disabled="loading" type="submit"
@@ -175,5 +177,4 @@ body {
     transform: scale(1.1);
     /* Scale up the image on hover */
 }
-
 </style>

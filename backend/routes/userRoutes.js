@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.put("/userprofile", verifyToken, async (req, res) => {
   try {
-    const { username, email, role } = req.body;
+    const { username, email, password } = req.body;
     const userId = req.user;
     const emailExists = await User.findOne({ where: { email } });
     if (emailExists && emailExists.id !== userId) {
@@ -17,14 +17,13 @@ router.put("/userprofile", verifyToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    await user.update({ username, email, role });
+    await user.update({ username, email, password });
     res.status(200).json({
       message: "User updated successfully",
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
-        role: user.role,
       },
     });
   } catch (error) {
@@ -107,7 +106,7 @@ router.post("/add", verifyToken, async (req, res) => {
     if (emailExists) {
       return res.status(400).json({ message: "Email already exists" });
     }
-     await User.create({ username, email, password, role });
+    await User.create({ username, email, password, role });
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
