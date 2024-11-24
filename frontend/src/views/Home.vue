@@ -101,7 +101,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto p-4 bg-slate-100 h-screen">
         <h1 class="text-3xl font-semibold mb-4">Users List</h1>
 
         <!-- Search and Filter -->
@@ -117,7 +117,7 @@ onMounted(() => {
 
 
         <!-- Users Table -->
-        <table class="min-w-full table-auto border-collapse border border-gray-200">
+        <table class="min-w-full table-auto border-collapse border-2  border-gray-200">
             <thead>
                 <tr class="bg-gray-100">
                     <th class="border-b px-4 py-2 text-left">ID</th>
@@ -135,16 +135,16 @@ onMounted(() => {
 
                         <button @click="editUser(user.id)"
                             v-if="authState.isLoggedIn && (userStore.user?.role === 'admin' || userStore.user?.id === user.id)"
-                            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            class="bg-yellow-500 text-white px-4 py-2 rounded duration-300 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400">
                             Edit
                         </button>
                         <button @click="deleteUser(user.id)"
                             v-if="authState.isLoggedIn && userStore.user?.role === 'admin' && user.id !== userStore.user.id"
-                            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
+                            class="bg-red-500 text-white px-4 py-2 rounded duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
                             Delete
                         </button>
                         <button @click="inviteUser(user.id)"
-                            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400">
+                            class="bg-green-500 text-white px-4 py-2 rounded duration-300 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400">
                             Invite
                         </button>
                     </td>
@@ -155,7 +155,7 @@ onMounted(() => {
 
 
         <!-- Pagination -->
-        <div class="flex justify-between items-center mt-4">
+        <div class="flex  justify-center gap-6 items-center mt-4">
             <button @click="prevPage" :disabled="currentPage === 1"
                 class="px-4 py-2 bg-gray-300 rounded disabled:bg-gray-200">Prev</button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>

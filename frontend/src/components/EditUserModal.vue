@@ -52,6 +52,10 @@ const updateUser = async () => {
             showErrorToast(error.response.data.message);
             return
         }
+        if (error.response.status === 400) {
+            showErrorToast(error.response.data.message);
+            return
+        }
         console.error('Error updating user:', error);
         showErrorToast('Failed to update user details');
     }

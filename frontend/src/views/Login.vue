@@ -35,7 +35,7 @@ const onSubmit = handleSubmit(async (values) => {
     loading.value = true; // Start loading
     try {
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/api/auth/login`, values);
-        console.log(res);
+       
         if (res.status === 200) {
             showSuccessToast(res.data.message);
             localStorage.setItem('auth-token', res.data.token);

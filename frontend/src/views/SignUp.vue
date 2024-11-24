@@ -5,7 +5,8 @@ import { useForm, useField, Form } from 'vee-validate';
 import * as Yup from 'yup';
 import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
-import {useRouter} from 'vue-router';
+import { useRouter } from 'vue-router';
+import { setLogin, userStore } from '../../store/store';
 
 // Define validation schema
 const signupSchema = Yup.object({
@@ -40,20 +41,28 @@ const onSubmit = handleSubmit(async (values) => {
     loading.value = true; // Start loading
     try {
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/api/auth/signup`, values);
-        console.log(res);
+
         if (res.status === 201) {
-            toast.success(res.data.message,{
+            toast.success(res.data.message, {
                 position: 'top-right'
             })
+            localStorage.setItem('auth-token', res.data.token);
+            setLogin(true);
+            userStore.setUser(res.data.user);
             setTimeout(() => {
-                window.location.href = '/login';
+                router.push('/');
+            }, 1000);
+            setTimeout(() => {
+                router.push('/');
             }, 1000);
         }
     } catch (error) {
         console.log(error);
         if (error.response.status === 400) {
-            toast.error(error.response.data.message);
-            return  
+            toast.error(error.response.data.message, {
+                position: 'top-right'
+            });
+            return
         }
         toast.error('Internal Server Error');
     } finally {

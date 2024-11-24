@@ -80,12 +80,7 @@ onMounted(() => {
         <router-link class="hover:text-gray-300 transition duration-300" to="/">
           Dashboard
         </router-link>
-        <router-link class="hover:text-gray-300 transition duration-300" to="/services">
-          Services
-        </router-link>
-        <router-link class="hover:text-gray-300 transition duration-300" to="/contact">
-          Contact
-        </router-link>
+       
         <router-link v-if="authState.isLoggedIn" class="hover:text-gray-300 transition duration-300" to="/userprofile">
           Profile
         </router-link>
@@ -127,12 +122,7 @@ onMounted(() => {
         <router-link class="hover:text-gray-300 transition duration-300" to="/">
           Dashboard
         </router-link>
-        <router-link class="hover:text-gray-300 transition duration-300" to="/services">
-          Services
-        </router-link>
-        <router-link class="hover:text-gray-300 transition duration-300" to="/contact">
-          Contact
-        </router-link>
+        
 
         <!-- Login/Signup or Logout Buttons (Mobile) -->
         <template v-if="!isLoggedIn">

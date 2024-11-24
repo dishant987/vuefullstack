@@ -77,6 +77,10 @@ router.get("/singleuser/:id", verifyToken, async (req, res) => {
 router.put("/updateuser", verifyToken, async (req, res) => {
   try {
     const { username, email, id } = req.body;
+    const emailExists = await User.findOne({ where: { email } });
+    if (emailExists && emailExists.id !== id) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
     const user = await User.findByPk(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
