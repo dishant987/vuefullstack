@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { authState, setLogin } from '../../store/store';
 import axios from 'axios';
 import { useToastNotification } from '../helper/useToastNotification';
+import { useRouter } from 'vue-router';
 
 const { showSuccessToast } = useToastNotification();
 const isMenuOpen = ref(false);
@@ -11,6 +12,7 @@ const token = ref(localStorage.getItem('auth-token'));
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
+const router = useRouter();
 
 const logout = async () => {
   isLoading.value = true; // Start loading
@@ -28,6 +30,7 @@ const logout = async () => {
     showSuccessToast(res.data.message);
     localStorage.removeItem('auth-token'); // Clear the token from localStorage
     setLogin(false); // Update the global login state
+    router.push('/login');
   } catch (error) {
     console.error('Logout failed:', error);
     showSuccessToast("Logout failed");

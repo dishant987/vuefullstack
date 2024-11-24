@@ -1,12 +1,17 @@
 <script setup>
 import axios from 'axios';
 import { onMounted, ref, computed } from 'vue';
+import { authState, userStore } from '../../store/store';
+import { useToastNotification } from '../helper/useToastNotification';
 
 const useData = ref([]);
 const searchQuery = ref('');
 const selectedFilter = ref('All');
 const currentPage = ref(1);
 const itemsPerPage = ref(5);
+const token = localStorage.getItem('auth-token');
+
+const { showSuccessToast,showErrorToast } = useToastNotification();
 
 // Fetch user data from the API
 const getData = async () => {
@@ -55,7 +60,27 @@ const totalPages = computed(() => {
 });
 
 const deleteUser = async (id) => {
+    try {
+        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URI}/api/user/deleteuser/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+        if (response.status === 200) {
+            showSuccessToast(response.data.message);
+            getData();
+        }
+        console.log(response);
 
+    } catch (error) {
+        if(error.response.status === 404){
+            showErrorToast(error.response.data.message);
+            return
+        }
+        showErrorToast('Internal Server Error');
+        console.error(error);
+    }
 }
 
 onMounted(() => {
@@ -69,7 +94,8 @@ onMounted(() => {
 
         <!-- Search and Filter -->
         <div class="flex gap-4 mb-4">
-            <input v-model="searchQuery" class="px-4 py-2 border rounded" placeholder="Search by Username or email" />
+            <input v-model="searchQuery" class="px-4 py-2 w-[350px] border rounded"
+                placeholder="Search by Username or email" />
             <select v-model="selectedFilter" class="px-4 py-2 border rounded">
                 <option value="All">All Roles</option>
                 <option value="admin">Admin</option>
@@ -79,7 +105,7 @@ onMounted(() => {
 
 
         <!-- Users Table -->
-        <table  class="min-w-full table-auto border-collapse border border-gray-200">
+        <table class="min-w-full table-auto border-collapse border border-gray-200">
             <thead>
                 <tr class="bg-gray-100">
                     <th class="border-b px-4 py-2 text-left">ID</th>
@@ -95,11 +121,11 @@ onMounted(() => {
                     <td class="border-b px-4 py-2">{{ user.email }}</td>
                     <td class="border-b px-4 py-2 flex gap-2">
 
-                        <button @click="editUser(user.id)"
+                        <button v-if="authState.isLoggedIn" @click="editUser(user.id)"
                             class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400">
                             Edit
                         </button>
-                        <button @click="editUser(user.id)"
+                        <button v-if="authState.isLoggedIn" @click="deleteUser(user.id)"
                             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
                             Delete
                         </button>
