@@ -11,7 +11,7 @@ const props = defineProps({
     showModal: {
         type: Boolean,
         required: true
-    }
+    }   
 });
 
 const emit = defineEmits(['close', 'userUpdated']);
