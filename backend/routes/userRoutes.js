@@ -92,4 +92,26 @@ router.put("/updateuser", verifyToken, async (req, res) => {
   }
 });
 
+// Add user route for admin
+router.post("/add", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user;
+    const { username, email, password, role } = req.body;
+    const IsAdmin = await User.findOne({
+      where: { id: userId, role: "admin" },
+    });
+    if (!IsAdmin) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const emailExists = await User.findOne({ where: { email } });
+    if (emailExists) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+     await User.create({ username, email, password, role });
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

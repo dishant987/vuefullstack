@@ -4,6 +4,7 @@ import { onMounted, ref, computed } from 'vue';
 import { authState, userStore } from '../../store/store';
 import { useToastNotification } from '../helper/useToastNotification';
 import EditUserModal from '../components/EditUserModal.vue';
+import AddUserForm from '../components/AddUserForm.vue';
 
 const useData = ref([]);
 const searchQuery = ref('');
@@ -87,13 +88,9 @@ const deleteUser = async (id) => {
 }
 
 const editUser = (userId) => {
-  selectedUserId.value = userId;
-  showEditModal.value = true;
+    selectedUserId.value = userId;
+    showEditModal.value = true;
 };
-
-const inviteUser = async (id) => {
-
-}
 
 onMounted(() => {
     getData();
@@ -104,15 +101,19 @@ onMounted(() => {
     <div class="container mx-auto p-4 bg-slate-100 h-screen">
         <h1 class="text-3xl font-semibold mb-4">Users List</h1>
 
+        <!-- Add User Button -->
+
         <!-- Search and Filter -->
         <div class="flex gap-4 mb-4">
             <input v-model="searchQuery" class="px-4 py-2 w-[350px] border rounded"
                 placeholder="Search by Username or email" />
-            <select v-model="selectedFilter" class="px-4 py-2 border rounded">
+            <select v-model="selectedFilter"
+                class=" px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
                 <option value="All">All Roles</option>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
             </select>
+            <AddUserForm @user-added="getData" v-if="authState.isLoggedIn && userStore.user?.role === 'admin'" />
         </div>
 
 
@@ -143,10 +144,7 @@ onMounted(() => {
                             class="bg-red-500 text-white px-4 py-2 rounded duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
                             Delete
                         </button>
-                        <button @click="inviteUser(user.id)"
-                            class="bg-green-500 text-white px-4 py-2 rounded duration-300 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400">
-                            Invite
-                        </button>
+
                     </td>
                 </tr>
             </tbody>
@@ -164,7 +162,7 @@ onMounted(() => {
         </div>
 
         <!-- Edit User Modal -->
-        <EditUserModal :showModal="showEditModal" :userId="selectedUserId || null" @close="showEditModal = false" 
+        <EditUserModal :showModal="showEditModal" :userId="selectedUserId || null" @close="showEditModal = false"
             @userUpdated="getData" />
     </div>
 </template>
